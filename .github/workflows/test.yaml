@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: find test comment
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v2.4.0
         id: find-test-comment
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: find active test comment
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v2.4.0
         id: find-active-test-comment
         with:
           issue-number: ${{ github.event.pull_request.number }}
