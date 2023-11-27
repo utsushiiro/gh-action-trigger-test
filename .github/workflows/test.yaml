@@ -42,13 +42,8 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             Test URL (status: active):
-<<<<<<< Updated upstream
             ${{ env.TEST_URL }}
-            <sub>(updated at ${{ env.CURRENT_DATETIME }}, commit: ${{ github.event.pull_request.head.sha }})</sub>
-=======
-            <${{ env.TEST_URL }}>
             :white_check_mark: updated at ${{ env.CURRENT_DATETIME }}, commit: ${{ github.event.pull_request.head.sha }}
->>>>>>> Stashed changes
           edit-mode: replace
 
   cleanup:
