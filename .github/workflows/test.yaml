@@ -74,7 +74,7 @@ jobs:
           body-includes: "Test URL (status: active)"
 
       - name: set outputs
-        run: echo "comment_id=${{ steps.find-active-test-comment.outputs.comment-id }}" >> $GITHUB_ENV
+        run: echo "comment_id=${{ steps.find-active-test-comment.outputs.comment-id }}" >> $GITHUB_OUTPUT
 
       - name: dump comment-id
         run: echo ${{ steps.find-active-test-comment.outputs.comment-id }}
