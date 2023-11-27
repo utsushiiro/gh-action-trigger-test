@@ -12,9 +12,6 @@ on:
 concurrency:
   group: test
 
-env:
-  GITHUB_SHA: ${{ github.sha }}
-
 jobs:
   exec:
     timeout-minutes: 15
