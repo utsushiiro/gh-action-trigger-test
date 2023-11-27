@@ -13,6 +13,17 @@ concurrency:
   group: test
 
 jobs:
+  # https://docs.github.com/ja/webhooks/webhook-events-and-payloads
+  dump-github-context:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    steps:
+    - name: dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo "$GITHUB_CONTEXT"
+
   exec:
     timeout-minutes: 15
     if: ${{ (github.event.action == 'labeled' && github.event.label.name == 'test') ||
