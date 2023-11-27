@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: find test comment
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v2.4.0
         id: find-test-comment
         with:
           issue-number: ${{ github.event.pull_request.number }}
@@ -28,7 +28,7 @@ jobs:
           body-includes: "Test URL"
 
       - name: set test url
-        run: echo "TEST_URL=https://github.com/utsushiiro" >> $GITHUB_OUTPUT
+        run: echo "TEST_URL=https://github.com/utsushiiro" >> $GITHUB_ENV
 
       - name: set current datetime 
         run: echo "CURRENT_DATETIME=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
@@ -41,27 +41,35 @@ jobs:
           comment-id: ${{ steps.find-test-comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Test URL (status: active):
-            <${{ env.TEST_URL }}>
-            <sub>(updated at ${{ env.CURRENT_DATETIME }}, commit: ${{ github.event.pull_request.head.sha }})</sub>
+            Test URL (status: active): ${{ env.TEST_URL }}
+
+            :white_check_mark: updated at ${{ env.CURRENT_DATETIME }}, commit: ${{ github.event.pull_request.head.sha }}
           edit-mode: replace
 
-  cleanup:
+  pre-cleanup:
     timeout-minutes: 15
     if: ${{ github.event.pull_request.state == 'closed' || 
             (github.event.action == 'unlabeled' && !contains(github.event.pull_request.labels.*.name, 'test')) }}
+    outputs:
+      comment-id: ${{ steps.find-active-test-comment.outputs.comment-id }}
     runs-on: ubuntu-latest
     steps:
       - name: find active test comment
-        uses: peter-evans/find-comment@v1
+        uses: peter-evans/find-comment@v2.4.0
         id: find-active-test-comment
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: github-actions[bot]
           body-includes: "Test URL (status: active)"
 
+  cleanup:
+    timeout-minutes: 15
+    runs-on: ubuntu-latest
+    needs: pre-cleanup
+    if: ${{ needs.pre-cleanup.outputs.comment_id != '' }}
+    steps:
       - name: set test url
-        run: echo "TEST_URL=https://github.com/utsushiiro" >> $GITHUB_OUTPUT
+        run: echo "TEST_URL=https://github.com/utsushiiro" >> $GITHUB_ENV
 
       - name: set current datetime 
         run: echo "CURRENT_DATETIME=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
@@ -74,7 +82,7 @@ jobs:
           comment-id: ${{ steps.find-active-test-comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Test URL (status: deleted):
-            ~<${{ env.TEST_URL }}>~
-            <sub>(:warning: deleted at ${{ env.CURRENT_DATETIME }})</sub>
+            Test URL (status: deleted): ~${{ env.TEST_URL }}~
+
+            :warning: deleted at ${{ env.CURRENT_DATETIME }}
           edit-mode: replace
