@@ -1,0 +1,83 @@
+name: test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: 
+      - synchronize
+      - closed
+      - labeled
+      - unlabeled
+
+concurrency:
+  group: test
+
+env:
+  GITHUB_SHA: ${{ github.sha }}
+
+jobs:
+  exec:
+    timeout-minutes: 15
+    if: ${{ (github.event.action == 'labeled' && github.event.label.name == 'test') ||
+            (github.event.action == 'synchronize' && contains(github.event.pull_request.labels.*.name, 'test')) }}  
+    runs-on: ubuntu-latest
+    steps:
+      - name: find test comment
+        uses: peter-evans/find-comment@v1
+        id: find-test-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: "Test URL"
+
+      - name: set test url
+        run: echo "TEST_URL=https://github.com/utsushiiro" >> $GITHUB_OUTPUT
+
+      - name: set current datetime 
+        run: echo "CURRENT_DATETIME=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+        env:
+          TZ: Asia/Tokyo
+
+      - name: create or update comment
+        uses: peter-evans/create-or-update-comment@v3.1.0
+        with:
+          comment-id: ${{ steps.find-test-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Test URL (status: active):
+            <${{ env.TEST_URL }}>
+            <sub>(updated at ${{ env.CURRENT_DATETIME }}, commit: ${{ github.event.pull_request.head.sha }})</sub>
+          edit-mode: replace
+
+  cleanup:
+    timeout-minutes: 15
+    if: ${{ github.event.pull_request.state == 'closed' || 
+            (github.event.action == 'unlabeled' && !contains(github.event.pull_request.labels.*.name, 'test')) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: find active test comment
+        uses: peter-evans/find-comment@v1
+        id: find-active-test-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: github-actions[bot]
+          body-includes: "Test URL (status: active)"
+
+      - name: set test url
+        run: echo "TEST_URL=https://github.com/utsushiiro" >> $GITHUB_OUTPUT
+
+      - name: set current datetime 
+        run: echo "CURRENT_DATETIME=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+        env:
+          TZ: Asia/Tokyo
+
+      - name: update comment
+        uses: peter-evans/create-or-update-comment@v3.1.0
+        with:
+          comment-id: ${{ steps.find-active-test-comment.outputs.comment-id }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Test URL (status: deleted):
+            ~<${{ env.TEST_URL }}>~
+            <sub>(:warning: deleted at ${{ env.CURRENT_DATETIME }})</sub>
+          edit-mode: replace
