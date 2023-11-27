@@ -90,7 +90,7 @@ jobs:
       - name: update comment
         uses: peter-evans/create-or-update-comment@v3.1.0
         with:
-          comment-id: ${{ steps.find-active-test-comment.outputs.comment-id }}
+          comment-id: ${{ needs.pre-cleanup.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             Test URL (status: deleted): ~${{ env.TEST_URL }}~
