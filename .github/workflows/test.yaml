@@ -75,11 +75,6 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             Test URL (status: deleted):
-<<<<<<< Updated upstream
-            ~${{ env.TEST_URL }}~
-            <sub>(:warning: deleted at ${{ env.CURRENT_DATETIME }})</sub>
-=======
             ~<${{ env.TEST_URL }}>~
             :warning: deleted at ${{ env.CURRENT_DATETIME }}
->>>>>>> Stashed changes
           edit-mode: replace
