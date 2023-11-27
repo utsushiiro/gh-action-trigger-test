@@ -59,8 +59,8 @@ jobs:
 
   pre-cleanup:
     timeout-minutes: 15
-    if: ${{ (github.event.action == 'unlabeled' && github.event.label.name == 'test')) ||
-            (github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'test') }}
+    if: ${{ (github.event.action == 'unlabeled' && github.event.label.name == 'test') ||
+            (github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'test')) }}
     outputs:
       comment-id: ${{ steps.find-active-test-comment.outputs.comment-id }}
     runs-on: ubuntu-latest
