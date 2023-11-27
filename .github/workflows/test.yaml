@@ -73,17 +73,11 @@ jobs:
           comment-author: github-actions[bot]
           body-includes: "Test URL (status: active)"
 
-      - name: set outputs
-        run: echo "comment_id=${{ steps.find-active-test-comment.outputs.comment-id }}" >> $GITHUB_OUTPUT
-
-      - name: dump comment-id
-        run: echo ${{ steps.find-active-test-comment.outputs.comment-id }}
-
   cleanup:
     timeout-minutes: 15
     runs-on: ubuntu-latest
     needs: pre-cleanup
-    if: ${{ needs.pre-cleanup.outputs.comment_id != '' }}
+    if: ${{ needs.pre-cleanup.outputs.comment-id != '' }}
     steps:
       - name: set test url
         run: echo "TEST_URL=https://github.com/utsushiiro" >> $GITHUB_ENV
