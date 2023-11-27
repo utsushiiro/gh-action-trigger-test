@@ -41,8 +41,8 @@ jobs:
           comment-id: ${{ steps.find-test-comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Test URL (status: active):
-            ${{ env.TEST_URL }}
+            Test URL (status: active): ${{ env.TEST_URL }}
+
             :white_check_mark: updated at ${{ env.CURRENT_DATETIME }}, commit: ${{ github.event.pull_request.head.sha }}
           edit-mode: replace
 
@@ -60,6 +60,10 @@ jobs:
           comment-author: github-actions[bot]
           body-includes: "Test URL (status: active)"
 
+      - name: exit if no active comment
+        if: ${{ steps.find-active-test-comment.outputs.comment-id == '' }}
+        run: exit 0
+
       - name: set test url
         run: echo "TEST_URL=https://github.com/utsushiiro" >> $GITHUB_ENV
 
@@ -74,7 +78,7 @@ jobs:
           comment-id: ${{ steps.find-active-test-comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            Test URL (status: deleted):
-            ~<${{ env.TEST_URL }}>~
+            Test URL (status: deleted): ~${{ env.TEST_URL }}~
+
             :warning: deleted at ${{ env.CURRENT_DATETIME }}
           edit-mode: replace
